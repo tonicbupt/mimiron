@@ -6,6 +6,7 @@ from mimiron.ext import db
 @pytest.fixture
 def app(request):
     _app.config['TESTING'] = True
+    _app.config['SERVER_NAME'] = 'localhost:5000'
 
     ctx = _app.app_context()
     ctx.push()
