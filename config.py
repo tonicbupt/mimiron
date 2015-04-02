@@ -12,6 +12,12 @@ MYSQL_USER = os.getenv('MYSQL_USER', 'root')
 MYSQL_PASSWORD = os.getenv('MYSQL_PASSWORD', '')
 MYSQL_DATABASE = os.getenv('MYSQL_DATABASE', 'mimiron')
 
+INFLUXDB_HOST = os.getenv('INFLUXDB_HOST', '127.0.0.1')
+INFLUXDB_PORT = int(os.getenv('INFLUXDB_PORT', '8086'))
+INFLUXDB_USER = os.getenv('INFLUXDB_USER', 'root')
+INFLUXDB_PASSWORD = os.getenv('INFLUXDB_PASSWORD', '')
+INFLUXDB_DATABASE = os.getenv('INFLUXDB_DATABASE', 'db')
+
 DEBUG = bool(os.getenv('DEBUG', ''))
 
 try:

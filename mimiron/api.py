@@ -2,7 +2,7 @@
 
 from flask import Flask, request
 
-from mimiron.condition import ConditionGroup
+from mimiron.condition import ConditionGroup, ScaleApp
 from mimiron.utils import jsonify
 from mimiron.ext import db
 
@@ -10,10 +10,21 @@ app = Flask(__name__)
 app.config.from_object('config')
 db.init_app(app)
 
-@app.route('/api/app/<appname>/conditions/', methods=['GET'])
+@app.route('/api/app/<appname>/scales/', methods=['GET'])
 @jsonify
-def list_conditions(appname):
-    return ConditionGroup.get_by_appname(appname)
+def list_app_scales(appname):
+    return ScaleApp.get_by_appname(appname)
+
+@app.route('/api/scale_app/<scale_app_id>/', methods=['GET'])
+@jsonify
+def get_scale_app(scale_app_id):
+    return ScaleApp.get(scale_app_id)
+
+@app.route('/api/scale_app/<scale_app_id>/conditions/', methods=['GET'])
+@jsonify
+def list_scale_app_conditions(scale_app_id):
+    app = ScaleApp.get(scale_app_id)
+    return app.condition_groups.all()
 
 @app.route('/api/condition_group/<cg_id>/', methods=['GET'])
 @jsonify
@@ -28,13 +39,23 @@ def delete_condition_group(cg_id):
         cg.delete()
     return {'r': 0, 'msg': 'ok'}
 
-@app.route('/api/<appname>/add_conditions/', methods=['GET', 'POST'])
+@app.route('/api/scale_app/<scale_app_id>/delete/', methods=['DELETE', 'POST'])
 @jsonify
-def add_conditions(appname):
+def delete_scale_app(scale_app_id):
+    app = ScaleApp.get(scale_app_id)
+    if app:
+        app.delete()
+    return {'r': 0, 'msg': 'ok'}
+
+@app.route('/api/<appname>/<version>/add_conditions/', methods=['GET', 'POST'])
+@jsonify
+def add_conditions(appname, version):
     """
     数据是这个样子:
     {
-        'operator': 'and',
+        'env': 'env',
+        'name': 'cgname',
+        'entrypoint': 'entrypoint',
         'conditions': {
             'cpu': '80',
             'io': '50',
@@ -42,13 +63,13 @@ def add_conditions(appname):
     }
     """
     data = request.get_json()
-    operator = data.get('operator', '')
     conditions = data.get('conditions', None)
     if conditions is None:
         return {'r': 1, 'msg': 'No conditions set'}
-    if len(conditions) > 1 and not operator:
-        return {'r': 1, 'msg': 'Conditions more than one, must set operator'}
-    cg = ConditionGroup.create(appname, operator, **conditions)
+    if not 'name' in data or not 'entrypoint' in data or not 'env' in data:
+        return {'r': 1, 'msg': 'No cgname/entrypoint/env set'}
+    cg = ConditionGroup.create(appname, version, data['entrypoint'],
+            data['env'], data['name'], **conditions)
     if not cg:
         return {'r': 1, 'msg': 'Condition Group create failed'}
     return {'r': 0, 'msg': 'ok', 'condition_group': cg}
