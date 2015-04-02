@@ -5,19 +5,32 @@ import signal
 import time
 from influxdb import InfluxDBClient
 
-from mimiron.condition import ConditionGroup
-from config import (INFLUXDB_HOST, INFLUXDB_PORT, INFLUXDB_USER,
-        INFLUXDB_PASSWORD, INFLUXDB_DATABASE)
+from mimiron.condition import ScaleApp
+from mimiron.client import EruClient
+from config import (
+    INFLUXDB_HOST,
+    INFLUXDB_PORT,
+    INFLUXDB_USER,
+    INFLUXDB_PASSWORD,
+    INFLUXDB_DATABASE,
+    ERU_URL,
+    ERU_TIMEOUT,
+    ERU_USER,
+    ERU_PASSWORD,
+)
 
-client = InfluxDBClient(INFLUXDB_HOST, INFLUXDB_PORT, INFLUXDB_USER,
+influxdb_client = InfluxDBClient(INFLUXDB_HOST, INFLUXDB_PORT, INFLUXDB_USER,
         INFLUXDB_PASSWORD, INFLUXDB_DATABASE)
+eru_client = EruClient(ERU_URL, ERU_TIMEOUT, ERU_USER, ERU_PASSWORD)
 
-def _test_condition_group(condition_groups):
+
+def _test_scale_app(scale_app):
     """所有的条件组的关系是or, 有一个满足即进行扩容.
     单个条件组里的所有条件的关系是and, 必须全部满足
     """
-    for cg in condition_groups:
-        if all(_test_condition(cg.appname, c.key, c.value) for c in cg.conditions.all()):
+    for cg in scale_app.condition_groups.all():
+        if all(_test_condition(scale_app.appname,
+            scale_app.entrypoint, c.key, c.value) for c in cg.conditions.all()):
             return True
     return False
 
@@ -28,8 +41,8 @@ def _test_condition(appname, entrypoint, indicator, value):
     """
     sql = ("select derivative(value) from %s "
            "where metric='%s' and entrypoint='%s' "
-           "group by time(1m) limit 10" % (appname, indicator. entrypoint))
-    r = client.query(sql)
+           "group by time(1m) limit 10" % (appname, indicator, entrypoint))
+    r = influxdb_client.query(sql)
     if not r:
         return False
     r = r[0]
@@ -39,7 +52,7 @@ def _test_condition(appname, entrypoint, indicator, value):
 class Scaler(object):
 
     def __init__(self):
-        self.conditions = []
+        self.scale_apps = []
         self.load_apps()
         signal.signal(signal.SIGHUP, self.handle_sighup)
         signal.signal(signal.SIGKILL, self.handle_sigkill)
@@ -53,15 +66,17 @@ class Scaler(object):
         sys.exit(0)
 
     def load_apps(self):
-        self.conditions = ConditionGroup.list_all()
+        self.scale_apps = ScaleApp.list_all()
     
-    def scan_single_app(cg):
-        if _test_condition_group(cgs):
-            # do scale
-            pass
+    def scan_scale_app(self, scale_app):
+        if _test_scale_app(scale_app):
+            # 1. 获取 group/pod
+            # 2. 获取 ncontainer/ncore
+            # 3. 部署新的
+            eru_client.deploy_private()
     
     def run(self):
         while True:
-            for app in self.apps:
-                self.scan_single_app(app)
+            for scale_app in self.scale_apps:
+                self.scan_scale_app(scale_app)
                 time.sleep(60)

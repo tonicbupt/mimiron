@@ -18,6 +18,11 @@ INFLUXDB_USER = os.getenv('INFLUXDB_USER', 'root')
 INFLUXDB_PASSWORD = os.getenv('INFLUXDB_PASSWORD', '')
 INFLUXDB_DATABASE = os.getenv('INFLUXDB_DATABASE', 'db')
 
+ERU_URL = os.getenv('ERU_URL', 'http://127.0.0.1:5000')
+ERU_TIMEOUT = int(os.getenv('ERU_TIMEOUT', '10'))
+ERU_USER = os.getenv('ERU_USER', '')
+ERU_PASSWORD = os.getenv('ERU_PASSWORD', '')
+
 DEBUG = bool(os.getenv('DEBUG', ''))
 
 try:
