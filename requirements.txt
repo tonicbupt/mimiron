@@ -1,0 +1,5 @@
+Flask
+Flask-SQLAlchemy
+requests
+websocket-client
+influxdb

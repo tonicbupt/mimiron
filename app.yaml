@@ -1,0 +1,9 @@
+appname: "mimiron"
+entrypoints:
+    api:
+        cmd: "gunicorn mimiron.api:app -b 0.0.0.0:5000 -k gevent"
+        ports:
+            - "5000/tcp"
+    scaler:
+        cmd: "python run.py scaler"
+build: "pip install -r ./requirements.txt"
