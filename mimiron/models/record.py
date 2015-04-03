@@ -10,7 +10,7 @@ class Record(Base):
     __tablename__ = 'record'
 
     time = db.Column(db.DateTime, nullable=False, default=datetime.datetime.now)
-    container_id = db.Column(db.CHAR(50), nullable=False, default='')
+    container_id = db.Column(db.CHAR(65), nullable=False, default='')
 
     scale_app_id = db.Column(db.Integer, db.ForeignKey('scale_app.id'))
 

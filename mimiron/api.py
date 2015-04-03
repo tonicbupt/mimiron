@@ -27,6 +27,12 @@ def list_scale_app_conditions(scale_app_id):
     app = ScaleApp.get(scale_app_id)
     return app.condition_groups.all()
 
+@app.route('/api/scale_app/<scale_app_id>/records/', methods=['GET'])
+@jsonify
+def list_scale_app_records(scale_app_id):
+    app = ScaleApp.get(scale_app_id)
+    return app.records.all()
+
 @app.route('/api/condition_group/<cg_id>/', methods=['GET'])
 @jsonify
 def get_condition_group(cg_id):

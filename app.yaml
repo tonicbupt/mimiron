@@ -6,4 +6,4 @@ entrypoints:
             - "5000/tcp"
     scaler:
         cmd: "python run.py scaler"
-build: "pip install -r ./requirements.txt"
+build: "pip install -r ./requirements.txt --index-url=http://pypi.douban.com/simple/"

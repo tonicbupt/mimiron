@@ -120,6 +120,10 @@ class EruClient(object):
         url = '/api/app/{0}/{1}/containers/'.format(name, version)
         return self.get(url)
 
+    def get_task(self, task_id):
+        url = '/api/task/{0}/'.format(task_id)
+        return self.get(url)
+
     def deploy_private(self, group_name, pod_name, app_name, ncore,
             ncontainer, version, entrypoint, env):
         url = '/api/deploy/private/{0}/{1}/{2}'.format(group_name, pod_name, app_name)

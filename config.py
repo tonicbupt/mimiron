@@ -23,6 +23,9 @@ ERU_TIMEOUT = int(os.getenv('ERU_TIMEOUT', '10'))
 ERU_USER = os.getenv('ERU_USER', '')
 ERU_PASSWORD = os.getenv('ERU_PASSWORD', '')
 
+REDIS_HOST = os.getenv('REDIS_HOST', '127.0.0.1')
+REDIS_PORT = int(os.getenv('REDIS_PORT', '6379'))
+
 DEBUG = bool(os.getenv('DEBUG', ''))
 
 try:
