@@ -1,6 +1,7 @@
 # coding: utf-8
 
-from mimiron.condition import ConditionGroup, ScaleApp
+from mimiron.models.condition import ConditionGroup
+from mimiron.models.scale_app import ScaleApp
 
 def test_scale_app(test_db):
     apps = ScaleApp.list_all()
@@ -89,3 +90,15 @@ def test_clean(test_db):
     assert len(ScaleApp.list_all()) == 0
     assert len(cg.conditions.all()) == 0
     assert ConditionGroup.get_by_name('cgname') is None
+
+def test_record(test_db):
+    app = ScaleApp.get_or_create('app', 'version', 'entrypoint', 'env')
+    assert len(ScaleApp.list_all()) == 1
+
+    app.add_record('container_id1')
+    app.add_record('container_id2')
+    rs = app.list_records()
+    assert len(rs) == 2
+    assert rs[0].container_id == 'container_id2'
+    assert rs[1].container_id == 'container_id1'
+

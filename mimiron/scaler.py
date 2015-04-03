@@ -5,8 +5,9 @@ import signal
 import time
 from influxdb import InfluxDBClient
 
-from mimiron.condition import ScaleApp
 from mimiron.client import EruClient
+from mimiron.models.condition import ScaleApp
+from mimiron.utils import json_failed
 from config import (
     INFLUXDB_HOST,
     INFLUXDB_PORT,
@@ -48,6 +49,13 @@ def _test_condition(appname, entrypoint, indicator, value):
     r = r[0]
     avg = sum([p[1] for p in r['points']]) / len(r['points'])
     return avg > float(value)
+
+def do_scale(scale_app):
+    info = eru_client.get_scale_info(scale_app.appname, scale_app.version)
+    if json_failed(info):
+        return
+    eru_client.deploy_private(info['group'], info['pod'], scale_app.appname,
+            info['ncore'], 1, scale_app.version, scale_app.entrypoint, scale_app.env)
     
 class Scaler(object):
 
@@ -70,10 +78,7 @@ class Scaler(object):
     
     def scan_scale_app(self, scale_app):
         if _test_scale_app(scale_app):
-            # 1. 获取 group/pod
-            # 2. 获取 ncontainer/ncore
-            # 3. 部署新的
-            eru_client.deploy_private()
+            do_scale(scale_app)
     
     def run(self):
         while True:

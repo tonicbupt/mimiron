@@ -1,11 +1,11 @@
 # coding: utf-8
 
 import json
+from flask import Response
 from datetime import datetime
 from functools import wraps
-from flask import Response
 
-from mimiron.condition import Base
+from mimiron.models.base import Base
 
 class EruJSONEncoder(json.JSONEncoder):
 
@@ -22,4 +22,7 @@ def jsonify(f):
         r = f(*args, **kwargs)
         return Response(json.dumps(r, cls=EruJSONEncoder), mimetype='application/json')
     return _
+
+def json_failed(r):
+    return 'r' in r and r['r'] == 1
 

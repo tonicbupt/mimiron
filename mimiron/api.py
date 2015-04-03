@@ -2,9 +2,10 @@
 
 from flask import Flask, request
 
-from mimiron.condition import ConditionGroup, ScaleApp
-from mimiron.utils import jsonify
 from mimiron.ext import db
+from mimiron.models.condition import ConditionGroup
+from mimiron.models.scale_app import ScaleApp
+from mimiron.utils import jsonify
 
 app = Flask(__name__)
 app.config.from_object('config')

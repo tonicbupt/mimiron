@@ -108,8 +108,16 @@ class EruClient(object):
         url = '/api/app/{0}/{1}'.format(name, version)
         return self.get(url)
 
+    def get_scale_info(self, name, version):
+        url = '/api/scale/{0}/{1}/info'.format(name, version)
+        return self.get(url)
+
     def list_app_containers(self, name):
         url = '/api/app/{0}/containers/'.format(name)
+        return self.get(url)
+
+    def list_version_containers(self, name, version):
+        url = '/api/app/{0}/{1}/containers/'.format(name, version)
         return self.get(url)
 
     def deploy_private(self, group_name, pod_name, app_name, ncore,

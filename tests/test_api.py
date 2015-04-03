@@ -2,7 +2,7 @@
 
 import json
 from flask import url_for
-from mimiron.condition import ConditionGroup
+from mimiron.models.condition import ConditionGroup
 
 def test_list_app_scales(client, test_db):
     rv = client.get(url_for('list_app_scales', appname='app'))
