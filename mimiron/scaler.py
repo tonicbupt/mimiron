@@ -21,6 +21,7 @@ from config import (
     ERU_PASSWORD,
     REDIS_HOST,
     REDIS_PORT,
+    SCAN_INTERVAL,
 )
 
 influxdb = InfluxDBClient(INFLUXDB_HOST, INFLUXDB_PORT, INFLUXDB_USER,
@@ -85,9 +86,9 @@ def do_scale(scale_app):
 class Scaler(object):
 
     def __init__(self):
-        self.scale_apps = []
-        self.load_apps()
-        signal.signal(signal.SIGHUP, self.handle_sighup)
+        #self.scale_apps = []
+        #self.load_apps()
+        #signal.signal(signal.SIGHUP, self.handle_sighup)
         signal.signal(signal.SIGTERM, self.handle_sigterm)
 
     def handle_sighup(self, s, f):
@@ -108,9 +109,10 @@ class Scaler(object):
     def run(self):
         try:
             while True:
-                for scale_app in self.scale_apps:
+                #for scale_app in self.scale_apps:
+                for scale_app in ScaleApp.list_all():
                     self.scan_scale_app(scale_app)
-                time.sleep(15)
+                time.sleep(SCAN_INTERVAL)
         except KeyboardInterrupt:
             print 'KeyboardInterrupt got'
             sys.exit(0)
