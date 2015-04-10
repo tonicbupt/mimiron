@@ -9,6 +9,7 @@ from redis import Redis
 from mimiron.client import EruClient
 from mimiron.models.condition import ScaleApp
 from mimiron.utils import json_failed
+from mimiron.mock import mock_test_condition
 from config import (
     INFLUXDB_HOST,
     INFLUXDB_PORT,
@@ -22,13 +23,13 @@ from config import (
     REDIS_HOST,
     REDIS_PORT,
     SCAN_INTERVAL,
+    USE_MOCK,
 )
 
 influxdb = InfluxDBClient(INFLUXDB_HOST, INFLUXDB_PORT, INFLUXDB_USER,
         INFLUXDB_PASSWORD, INFLUXDB_DATABASE)
 eru = EruClient(ERU_URL, ERU_TIMEOUT, ERU_USER, ERU_PASSWORD)
 rds = Redis(host=REDIS_HOST, port=REDIS_PORT)
-
 
 def _test_scale_app(scale_app):
     """所有的条件组的关系是or, 有一个满足即进行扩容.
@@ -45,6 +46,11 @@ def _test_condition(appname, entrypoint, indicator, value):
     """测试指标是不是已经超过.
     很简单, 每1min的数据采集, 如果前10分钟的平均值超过了value, 就认为超过
     """
+    # 如果设置了 use mock, 那么就直接搞个假的
+    # 因为现在的 influxdb 没有办法读数据-_-#
+    if USE_MOCK:
+        return mock_test_condition()
+
     try:
         sql = ("select derivative(value) from %s "
                "where metric='%s' and entrypoint='%s' "

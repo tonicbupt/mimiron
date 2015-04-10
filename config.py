@@ -29,6 +29,8 @@ REDIS_PORT = int(os.getenv('REDIS_PORT', '6379'))
 DEBUG = bool(os.getenv('DEBUG', ''))
 SCAN_INTERVAL = int(os.getenv('SCAN_INTERVAL', 30))
 
+USE_MOCK = bool(os.getenv('USE_MOCK', ''))
+
 try:
     from local_config import *
 except ImportError:
