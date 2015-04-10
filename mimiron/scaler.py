@@ -119,6 +119,7 @@ class Scaler(object):
                 for scale_app in ScaleApp.list_all():
                     self.scan_scale_app(scale_app)
                 time.sleep(SCAN_INTERVAL)
+                print >> sys.stderr, 'scanning...'
         except KeyboardInterrupt:
             print 'KeyboardInterrupt got'
             sys.exit(0)
