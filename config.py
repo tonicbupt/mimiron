@@ -12,12 +12,6 @@ MYSQL_USER = os.getenv('MYSQL_USER', 'root')
 MYSQL_PASSWORD = os.getenv('MYSQL_PASSWORD', '')
 MYSQL_DATABASE = os.getenv('MYSQL_DATABASE', 'mimiron')
 
-INFLUXDB_HOST = os.getenv('INFLUXDB_HOST', '127.0.0.1')
-INFLUXDB_PORT = int(os.getenv('INFLUXDB_PORT', '8086'))
-INFLUXDB_USER = os.getenv('INFLUXDB_USER', 'root')
-INFLUXDB_PASSWORD = os.getenv('INFLUXDB_PASSWORD', '')
-INFLUXDB_DATABASE = os.getenv('INFLUXDB_DATABASE', 'db')
-
 ERU_URL = os.getenv('ERU_URL', 'http://127.0.0.1:5000')
 ERU_TIMEOUT = int(os.getenv('ERU_TIMEOUT', '10'))
 ERU_USER = os.getenv('ERU_USER', '')
@@ -39,4 +33,3 @@ except ImportError:
 SQLALCHEMY_DATABASE_URI = 'mysql://{0}:{1}@{2}:{3}/{4}'.format(
     MYSQL_USER, MYSQL_PASSWORD, MYSQL_HOST, MYSQL_PORT, MYSQL_DATABASE,
 )
-

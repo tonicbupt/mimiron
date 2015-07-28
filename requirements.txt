@@ -2,8 +2,8 @@ Flask
 Flask-SQLAlchemy
 requests
 websocket-client
-influxdb
 redis
 gunicorn
 gevent
 mysql-python
+eru-py

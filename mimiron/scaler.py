@@ -3,19 +3,13 @@
 import sys
 import signal
 import time
-from influxdb import InfluxDBClient
+from eruhttp import EruClient
 from redis import Redis
 
-from mimiron.client import EruClient
 from mimiron.models.condition import ScaleApp
 from mimiron.utils import json_failed
 from mimiron.mock import mock_test_condition
 from config import (
-    INFLUXDB_HOST,
-    INFLUXDB_PORT,
-    INFLUXDB_USER,
-    INFLUXDB_PASSWORD,
-    INFLUXDB_DATABASE,
     ERU_URL,
     ERU_TIMEOUT,
     ERU_USER,
@@ -26,10 +20,9 @@ from config import (
     USE_MOCK,
 )
 
-influxdb = InfluxDBClient(INFLUXDB_HOST, INFLUXDB_PORT, INFLUXDB_USER,
-        INFLUXDB_PASSWORD, INFLUXDB_DATABASE)
 eru = EruClient(ERU_URL, ERU_TIMEOUT, ERU_USER, ERU_PASSWORD)
 rds = Redis(host=REDIS_HOST, port=REDIS_PORT)
+
 
 def _test_scale_app(scale_app):
     """所有的条件组的关系是or, 有一个满足即进行扩容.
@@ -41,7 +34,7 @@ def _test_scale_app(scale_app):
             return True
     return False
 
-# TODO version env 都需要
+
 def _test_condition(appname, entrypoint, indicator, value):
     """测试指标是不是已经超过.
     很简单, 每1min的数据采集, 如果前10分钟的平均值超过了value, 就认为超过
@@ -51,15 +44,6 @@ def _test_condition(appname, entrypoint, indicator, value):
     if USE_MOCK:
         return mock_test_condition()
 
-    try:
-        sql = ("select derivative(value) from %s "
-               "where metric='%s' and entrypoint='%s' "
-               "group by time(1m) limit 10" % (appname, indicator, entrypoint))
-        r = influxdb.query(sql)[0]
-        avg = sum([p[1] for p in r['points']]) / len(r['points'])
-        return avg > float(value)
-    except:
-        return False
 
 def do_scale(scale_app):
     info = eru.get_scale_info(scale_app.appname, scale_app.version)
